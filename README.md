@@ -6,9 +6,9 @@
 ## Portfolio
 - Account Opening: Nov 2024.
 - As of 2025, Sep 26th: 
-- - GME INTC SILJ CC ONDS KO OPEN NVDA WRD (ordered by largest to smallest in total market value)
+- - GME INTC SILJ CC ONDS KO OPEN NVDA (ordered by largest to smallest in total market value)
 - - Cash position: 10.45%
-- 2025 YoY Yield: 34.06
+- 2025 YoY Yield: 40%
 
 ## Resources
 - https://www.insiderdashboard.com/?tab=insider-trading-buys-sells
