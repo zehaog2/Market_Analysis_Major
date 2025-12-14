@@ -2,18 +2,6 @@
 - All of the results & resources here are to help myself in narrowing queries and mitigating risk all based on techincal analysis. Please read the disclaimer.
 - I hope you find anything here helpful.
 
-
-## Portfolio
-- Account Opening: Nov 2024.
-- As of Oct, 2025: 
-- Top Holdings: GME, SILJ, CC
-- - Cash position: 13%
-- 2025 YoY Yield: 41%
-
-## Resources
-- See repo Market_Analysis_Minor
-
-## USEFUL command lines
 ```
 python3 portfolio_manager.py
 # General charts based on portfolio (with different timeframe)
