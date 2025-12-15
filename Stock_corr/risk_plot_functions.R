@@ -1,17 +1,23 @@
 library(ggplot2)
-library(ggimage)
+library(ggrepel)  # For non-overlapping labels
 
 #' Create Portfolio Risk Assessment Matrix Plot
 #' @param all_results List of correlation analysis results from batch_advanced_analysis()
-#' @param icon_dir Directory containing ticker icon files (default: "ticker_icons")
+#' @param benchmark_filter Optional benchmark to filter by (e.g., "SPY" or "IWM")
 #' @param use_icons Boolean to use stock logos (TRUE) or colored points (FALSE)
+#' @param icon_dir Directory containing ticker icon files (default: "ticker_icons")
 #' @return ggplot object
-create_risk_matrix_plot <- function(all_results, icon_dir = "ticker_icons", use_icons = FALSE) {
+create_risk_matrix_plot <- function(all_results, benchmark_filter = NULL, use_icons = FALSE, icon_dir = "ticker_icons") {
   # Build the risk data frame
   risk_data <- data.frame()
   
   for(stock in names(all_results)) {
     for(benchmark in names(all_results[[stock]])) {
+      # Filter by benchmark if specified
+      if(!is.null(benchmark_filter) && benchmark != benchmark_filter) {
+        next
+      }
+      
       result <- all_results[[stock]][[benchmark]]
       
       if(!is.null(result$overall)) {
@@ -31,7 +37,7 @@ create_risk_matrix_plot <- function(all_results, icon_dir = "ticker_icons", use_
           Stock = stock,
           Benchmark = benchmark,
           Overall_Corr = result$overall$correlation,
-          #Beta = if(!is.null(result$overall$beta)) result$overall$beta else NA,
+          Beta = if(!is.null(result$overall$beta)) result$overall$beta else NA,
           Vol_Effect = vol_effect,
           Regime_Effect = regime_effect,
           stringsAsFactors = FALSE
@@ -51,7 +57,7 @@ create_risk_matrix_plot <- function(all_results, icon_dir = "ticker_icons", use_
     )
   }
   
-  # Get unique stocks and aggregate data
+  # Get unique stocks and aggregate data (averaging if multiple benchmarks)
   unique_stocks <- unique(risk_data$Stock)
   agg_data <- data.frame()
   
@@ -68,18 +74,27 @@ create_risk_matrix_plot <- function(all_results, icon_dir = "ticker_icons", use_
     ))
   }
   
-  # Fix common ticker symbol inconsistencies and add beta
+  # Fix common ticker symbol inconsistencies
   agg_data$Stock_Display <- agg_data$Stock
   
-  # Create plot with ticker names only (no circles)
+  # Create plot with non-overlapping labels using ggrepel
   p <- ggplot(agg_data, aes(x = Vol_Effect, y = Regime_Effect, color = Stock_Display)) +
-    geom_text(aes(label = Stock_Display), 
-              hjust = 0.5, vjust = 0.5, 
-              size = 4, fontface = "bold", 
-              show.legend = FALSE) +
+    geom_point(size = 3, alpha = 0.6) +  # Add points to anchor labels
+    geom_text_repel(
+      aes(label = Stock_Display),
+      size = 4,
+      fontface = "bold",
+      box.padding = 0.5,
+      point.padding = 0.3,
+      segment.color = "grey50",
+      segment.size = 0.2,
+      max.overlaps = Inf,
+      force = 2,
+      show.legend = FALSE
+    ) +
     scale_color_viridis_d(name = "Stock") +
-    geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.5, color = "gray60") +
-    geom_vline(xintercept = 0, linetype = "dashed", alpha = 0.5, color = "gray60") +
+    geom_hline(yintercept = 0, linetype = "dashed", alpha = 0.5, color = "gray60", linewidth = 0.5) +
+    geom_vline(xintercept = 0, linetype = "dashed", alpha = 0.5, color = "gray60", linewidth = 0.5) +
     labs(
       title = "Portfolio Risk Assessment Matrix",
       subtitle = "Position indicates conditional correlation risk",

@@ -4,7 +4,8 @@ from stock_info_manager import StockInfoManager
 
 class PortfolioManager:
     def __init__(self, config_file='config.json'):
-        self.config_file = config_file
+        # Always use config.json from current directory (Stock_corr folder)
+        self.config_file = os.path.join(os.path.dirname(__file__), config_file)
         self.config = self.load_config()
         self.info_manager = StockInfoManager()
     
@@ -15,11 +16,16 @@ class PortfolioManager:
                 return json.load(f)
         else:
             # Create default config
-            return {
+            default_config = {
                 'portfolio': {
                     'stocks': []
                 }
             }
+            # Save the default config
+            with open(self.config_file, 'w') as f:
+                json.dump(default_config, f, indent=2)
+            print(f"✅ Created new config file at {self.config_file}")
+            return default_config
     
     def save_config(self):
         """Save configuration file"""
@@ -61,7 +67,7 @@ class PortfolioManager:
         """List all tickers in portfolio with details"""
         stocks = self.config['portfolio']['stocks']
         if not stocks:
-            print("📭 Portfolio is empty")
+            print("🔭 Portfolio is empty")
             return
         
         print("\n📊 Current Portfolio:")
@@ -79,7 +85,7 @@ class PortfolioManager:
         """Force update all stock information"""
         stocks = self.config['portfolio']['stocks']
         if not stocks:
-            print("📭 Portfolio is empty")
+            print("🔭 Portfolio is empty")
             return
         
         print(f"\n🔄 Updating {len(stocks)} stocks...")
